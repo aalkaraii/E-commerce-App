@@ -3,9 +3,11 @@ import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import Home from "../pages/Home";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
+
   return (
     <div className=" flex items-center justify-between py-5 font-medium">
       <img src={assets.logo} className="w-36" alt="" />
