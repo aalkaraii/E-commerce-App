@@ -9,12 +9,13 @@ import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import PlaceOrder from "./pages/PlaceOrder";
 import Product from "./pages/Product";
-import Navbar from "./components/Navbar";
 import SearchBar from "./components/SearchBar";
-
+import { ToastContainer, toast } from "react-toastify";
+import Navbar from "./components/Navbar";
 function App() {
   return (
     <div className="px-4 sm:px-[5vm] md:px-[7vm] lg:px-[9vm] ">
+      <ToastContainer />
       <Navbar />
       <SearchBar />
       <Routes>
