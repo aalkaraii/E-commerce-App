@@ -33,6 +33,12 @@ const Footer = () => {
       <div>
         <hr />
         <p className="py-5 text-sm text-center">
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=someone@example.com&su=Subject&body=Hello%20there"
+            target="_blank"
+            rel="noopener noreferrer">
+            Send Mail
+          </a>
           Copyright 2025@candelshopnepal.com-All Right Reserved.
         </p>
       </div>
