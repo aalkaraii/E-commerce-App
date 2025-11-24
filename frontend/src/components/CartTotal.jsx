@@ -1,9 +1,19 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 
 const CartTotal = () => {
   const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
+  const [cartAmount, setCartAmount] = useState(0);
+  const { cartItems } = useContext(ShopContext);
+  useEffect(() => {
+    const fetchCartAmount = async () => {
+      const amount = await getCartAmount();
+      setCartAmount(amount);
+      console.log("amount", amount);
+    };
+    fetchCartAmount();
+  }, [cartItems]);
   return (
     <div className="w-full ">
       <div className="text-2xl">
@@ -14,7 +24,7 @@ const CartTotal = () => {
           <p>Sub total</p>
           <p>
             {currency}
-            {getCartAmount()}.00
+            {cartAmount}.00
           </p>
         </div>
         <hr />
@@ -29,8 +39,7 @@ const CartTotal = () => {
         <div className="flex justify-between">
           <b>Total</b>
           <b>
-            {currency}{" "}
-            {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00
+            {currency} {cartAmount + delivery_fee}.00
           </b>
         </div>
       </div>

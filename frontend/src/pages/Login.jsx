@@ -1,9 +1,29 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login");
+  const { setToken, token, navigate, backendUrl } = useContext(ShopContext);
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+
   const onSubmitHandeler = async () => {
     event.preventDefault();
+    try {
+      if (currentState === "Sign Up") {
+        // call sign up api
+        const response = await axios.post(backendUrl + "/api/user/register", {
+          name,
+          email,
+          password,
+        });
+        console.log(response.data);
+      } else {
+        // call login up api
+      }
+    } catch (error) {}
   };
   return (
     <form
@@ -15,17 +35,23 @@ const Login = () => {
       </div>
       <input
         type="text"
+        onClick={(e) => setName(e.target.value)}
+        value={name}
         className={`w-full transition-all px-3 py-2 border border-gray-800 ${
           currentState === "Login" ? "hidden" : "flex"
         }`}
         placeholder="Name"
       />
       <input
+        onClick={(e) => setEmail(e.target.value)}
+        value={email}
         type="email"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Email"
       />
       <input
+        onClick={(e) => setPassword(e.target.value)}
+        value={password}
         type="password"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Password"

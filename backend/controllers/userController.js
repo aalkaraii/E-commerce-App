@@ -70,6 +70,18 @@ const registerUser = async (req, res) => {
 
 // Route for Admin login
 const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = jwt.sign(email + password, process.env.JWT_SECRECT);
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: " invalid credentials" });
+    }
+  } catch (error) {}
   res.json({ msg: "Admin Login API working" });
 };
 

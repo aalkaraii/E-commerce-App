@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
-import Product from "./Product";
 import Title from "../components/Title";
-import { assets } from "../assets/frontend_assets/assets";
 import { RiDeleteBinLine } from "react-icons/ri";
-import CartTotal from "../components/CartTotal";
+import CartTotal from "../components/CartTotal.jsx";
 
 const Cart = () => {
   const {
@@ -18,6 +16,7 @@ const Cart = () => {
 
   const [cartData, setCartData] = useState([]);
   useEffect(() => {
+    console.log("get cart count", getCartCount());
     const tempData = [];
     for (const items in cartItems) {
       for (const item in cartItems[items]) {
@@ -112,7 +111,7 @@ const Cart = () => {
             <button
               onClick={() => navigate("/place-order")}
               className="bg-black text-white text-sm my-8 px-8 py-3">
-              Continue Shopping
+              Place Order{" "}
             </button>
           </div>
         </div>
