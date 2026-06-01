@@ -8,9 +8,9 @@ const Footer = () => {
         <div>
           <img src={assets.logo} alt="" className="mb-5 w-32" />
           <p className="w-1/2 md:w-2/3  text-gray-600">
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
+            {/* Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
             commodo ligula eget dolor. Aenean massa. Cum sociis natoque
-            penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+            penatibus et magnis dis parturient montes, nascetur ridiculus mus. */} test
           </p>
         </div>
         <div>
