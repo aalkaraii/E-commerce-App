@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 
 const BestSeller = () => {
-  const { products } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
   const [bestSeller, setBestSeller] = useState([]);
   useEffect(() => {
     const bestProduct = products.filter((item) => item.bestseller);

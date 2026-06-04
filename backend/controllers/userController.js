@@ -74,10 +74,12 @@ const registerUser = async (req, res) => {
 // Route for Admin login
 const adminLogin = async (req, res) => {
   try {
+    console.log("Admin Login Request:", req.body, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
     const { email, password } = req.body;
-    
+
     // Check if admin is in DB
-    let admin = await adminModel.findOne({ email });
+    const admin = await adminModel.findOne({ email }).select('+password');
+    console.log("Admin:", admin);
     if (admin) {
       const isMatch = await bcrypt.compare(password, admin.password);
       if (isMatch) {
@@ -96,15 +98,16 @@ const adminLogin = async (req, res) => {
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
     ) {
+      console.log('here')
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
-      
+
       const newAdmin = new adminModel({
         email,
         password: hashedPassword
       });
       admin = await newAdmin.save();
-      
+
       const token = jwt.sign(
         { id: admin._id, email: admin.email, role: "admin" },
         process.env.JWT_SECRECT
@@ -123,10 +126,10 @@ const adminLogin = async (req, res) => {
 const adminChangePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    
+
     // Fallback if legacy token was used and email isn't in token payload
     const email = req.admin ? req.admin.email : process.env.ADMIN_EMAIL;
-    
+
     let admin = await adminModel.findOne({ email });
     if (!admin) {
       // Auto-migrate if admin is not in DB yet
@@ -142,20 +145,20 @@ const adminChangePassword = async (req, res) => {
         return res.json({ success: false, message: "Admin account not found" });
       }
     }
-    
+
     const isMatch = await bcrypt.compare(oldPassword, admin.password);
     if (!isMatch) {
       return res.json({ success: false, message: "Incorrect current password" });
     }
-    
+
     if (newPassword.length < 8) {
       return res.json({ success: false, message: "Please enter a strong password (min 8 characters)" });
     }
-    
+
     const salt = await bcrypt.genSalt(10);
     admin.password = await bcrypt.hash(newPassword, salt);
     await admin.save();
-    
+
     return res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
     console.log(error);
@@ -167,11 +170,11 @@ const adminChangePassword = async (req, res) => {
 const adminForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (email !== process.env.ADMIN_EMAIL) {
       return res.json({ success: false, message: "Admin email not found" });
     }
-    
+
     let admin = await adminModel.findOne({ email });
     if (!admin) {
       const salt = await bcrypt.genSalt(10);
@@ -182,22 +185,22 @@ const adminForgotPassword = async (req, res) => {
       });
       await admin.save();
     }
-    
+
     const resetToken = crypto.randomBytes(32).toString("hex");
     admin.resetPasswordToken = resetToken;
     admin.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await admin.save();
-    
+
     const adminFrontendUrl = process.env.ADMIN_FRONTEND_URL || "http://localhost:5174";
     const resetLink = `${adminFrontendUrl}/reset-password?token=${resetToken}&email=${email}`;
-    
+
     const mailOptions = {
       to: email,
       subject: "Admin Password Reset Request",
       text: `You are receiving this email because you (or someone else) have requested the reset of the password for the admin account.\n\n` +
-            `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-            `${resetLink}\n\n` +
-            `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+        `${resetLink}\n\n` +
+        `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
       html: `
         <div style="font-family: 'Outfit', sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px;">
           <h2 style="color: #c586a5; font-size: 24px; font-weight: bold; margin-bottom: 16px;">Admin Password Reset</h2>
@@ -213,14 +216,14 @@ const adminForgotPassword = async (req, res) => {
         </div>
       `
     };
-    
+
     const emailResult = await sendEmail(mailOptions);
-    
-    return res.json({ 
-      success: true, 
-      message: emailResult.loggedToConsole 
-        ? "Reset link generated (logged to server console for development)" 
-        : "Reset password email sent successfully" 
+
+    return res.json({
+      success: true,
+      message: emailResult.loggedToConsole
+        ? "Reset link generated (logged to server console for development)"
+        : "Reset password email sent successfully"
     });
   } catch (error) {
     console.log(error);
@@ -232,27 +235,27 @@ const adminForgotPassword = async (req, res) => {
 const adminResetPassword = async (req, res) => {
   try {
     const { email, token, newPassword } = req.body;
-    
+
     const admin = await adminModel.findOne({
       email,
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
     });
-    
+
     if (!admin) {
       return res.json({ success: false, message: "Password reset token is invalid or has expired" });
     }
-    
+
     if (newPassword.length < 8) {
       return res.json({ success: false, message: "Please enter a strong password (min 8 characters)" });
     }
-    
+
     const salt = await bcrypt.genSalt(10);
     admin.password = await bcrypt.hash(newPassword, salt);
     admin.resetPasswordToken = null;
     admin.resetPasswordExpires = null;
     await admin.save();
-    
+
     return res.json({ success: true, message: "Password has been reset successfully" });
   } catch (error) {
     console.log(error);

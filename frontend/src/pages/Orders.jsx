@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React from "react";
+import { useSelector } from "react-redux";
 import Title from "../components/Title";
 
 const Orders = () => {
-  const { products, currency } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
+  const currency = useSelector((state) => state.shop.currency);
   return (
     <div className=" border-t pt-16">
       <div className="text-2xl">

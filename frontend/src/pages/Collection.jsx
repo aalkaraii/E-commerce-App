@@ -1,11 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { assets } from "../assets/frontend_assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
-import { ShopContext } from "../context/ShopContext";
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
+  const search = useSelector((state) => state.shop.search);
+  const showSearch = useSelector((state) => state.shop.showSearch);
   const [showFilters, setShowFilters] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);

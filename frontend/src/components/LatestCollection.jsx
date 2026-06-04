@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 const LatestCollection = () => {
-  const { products } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
   const [latestProducts, setLatestProducts] = useState([]);
   useEffect(() => {
     setLatestProducts(products.slice(0, 10));

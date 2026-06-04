@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ShopContext } from "../context/ShopContext";
+import { useSelector, useDispatch } from "react-redux";
+import { addToCart } from "../store/shopSlice";
 import { assets } from "../assets/frontend_assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
+  const dispatch = useDispatch();
 
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
+  const currency = useSelector((state) => state.shop.currency);
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
@@ -93,7 +96,7 @@ const Product = () => {
             </div>
           </div>
           <button
-            onClick={() => addToCart(productData._id, size)}
+            onClick={() => dispatch(addToCart({ itemId: productData._id, size }))}
             className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">
             {" "}
             Add to cart

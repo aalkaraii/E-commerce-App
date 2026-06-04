@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import ProductItem from "../components/ProductItem";
 import Title from "./Title";
 
 const RelatedProducts = ({ category, subCategory }) => {
-  const { products } = useContext(ShopContext);
+  const products = useSelector((state) => state.shop.products);
   const [related, setRelated] = useState([]);
   useEffect(() => {
     if (products.length > 0) {

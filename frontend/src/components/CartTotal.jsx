@@ -1,19 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React from "react";
+import { useSelector } from "react-redux";
+import { selectCartAmount } from "../store/shopSlice";
 import Title from "./Title";
 
 const CartTotal = () => {
-  const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
-  const [cartAmount, setCartAmount] = useState(0);
-  const { cartItems } = useContext(ShopContext);
-  useEffect(() => {
-    const fetchCartAmount = async () => {
-      const amount = await getCartAmount();
-      setCartAmount(amount);
-      console.log("amount", amount);
-    };
-    fetchCartAmount();
-  }, [cartItems]);
+  const currency = useSelector((state) => state.shop.currency);
+  const delivery_fee = useSelector((state) => state.shop.delivery_fee);
+  const cartAmount = useSelector(selectCartAmount);
   return (
     <div className="w-full ">
       <div className="text-2xl">

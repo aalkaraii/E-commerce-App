@@ -1,17 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setToken } from "../store/shopSlice";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login");
-  const { setToken, token, navigate, backendUrl } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const token = useSelector((state) => state.shop.token);
+  const backendUrl = useSelector((state) => state.shop.backendUrl);
+
   console.log("backend url : ", backendUrl);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
 
-  const onSubmitHandeler = async () => {
+  const onSubmitHandeler = async (event) => {
     event.preventDefault();
     try {
       if (currentState === "Sign Up") {
@@ -22,8 +29,7 @@ const Login = () => {
           password,
         });
         if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          dispatch(setToken(response.data.token));
         } else {
           toast.error(response.data.message);
         }
@@ -34,8 +40,7 @@ const Login = () => {
           password,
         });
         if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          dispatch(setToken(response.data.token));
         } else {
           toast.error(response.data.message);
         }

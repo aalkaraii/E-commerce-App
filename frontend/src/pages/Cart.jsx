@@ -1,22 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { updateQuantity, selectCartCount } from "../store/shopSlice";
+import { useNavigate } from "react-router-dom";
 import Title from "../components/Title";
 import { RiDeleteBinLine } from "react-icons/ri";
 import CartTotal from "../components/CartTotal.jsx";
 
 const Cart = () => {
-  const {
-    products,
-    currency,
-    cartItems,
-    updateQuantity,
-    navigate,
-    getCartCount,
-  } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const products = useSelector((state) => state.shop.products);
+  const currency = useSelector((state) => state.shop.currency);
+  const cartItems = useSelector((state) => state.shop.cartItems);
+  const cartCount = useSelector(selectCartCount);
 
   const [cartData, setCartData] = useState([]);
   useEffect(() => {
-    console.log("get cart count", getCartCount());
+    console.log("get cart count", cartCount);
     const tempData = [];
     for (const items in cartItems) {
       for (const item in cartItems[items]) {
@@ -70,10 +71,12 @@ const Cart = () => {
                 onChange={(e) =>
                   e.target.value === "" || e.target.value === "0"
                     ? null
-                    : updateQuantity(
-                        item._id,
-                        item.size,
-                        Number(e.target.value)
+                    : dispatch(
+                        updateQuantity({
+                          itemId: item._id,
+                          size: item.size,
+                          quantity: Number(e.target.value),
+                        })
                       )
                 }
                 className=" border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1"
@@ -84,7 +87,15 @@ const Cart = () => {
               <RiDeleteBinLine
                 className="w-4 h-6 mr-4 sm:w-5 cursor-pointer hover:text-red-500"
                 alt=""
-                onClick={() => updateQuantity(item._id, item.size, 0)}
+                onClick={() =>
+                  dispatch(
+                    updateQuantity({
+                      itemId: item._id,
+                      size: item.size,
+                      quantity: 0,
+                    })
+                  )
+                }
               />
             </div>
           );

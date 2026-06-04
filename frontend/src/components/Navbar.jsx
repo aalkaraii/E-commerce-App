@@ -1,28 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { assets } from "../assets/frontend_assets/assets";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { ShopContext } from "../context/ShopContext";
+import { useSelector, useDispatch } from "react-redux";
+import { setShowSearch, setToken, setCartItems, selectCartCount } from "../store/shopSlice";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const {
-    setShowSearch,
-    getCartCount,
-    navigate,
-    token,
-    setToken,
-    setCartItems,
-  } = useContext(ShopContext);
+  const token = useSelector((state) => state.shop.token);
+  const cartCount = useSelector(selectCartCount);
 
   const logout = () => {
     navigate("/login");
-
-    localStorage.removeItem("token");
-    setToken("");
-    setCartItems({});
+    dispatch(setToken(""));
+    dispatch(setCartItems({}));
   };
 
   return (
@@ -50,7 +45,7 @@ const Navbar = () => {
       </ul>
       <div className="flex items-center gap-6">
         <img
-          onClick={() => setShowSearch(true)}
+          onClick={() => dispatch(setShowSearch(true))}
           src={assets.search_icon}
           className="w-5 cursor-pointer"
           alt=""
@@ -83,7 +78,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="" />
           <div className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white text-[8px] aspect-square rounded-full">
-            {getCartCount()}
+            {cartCount}
           </div>
         </Link>
         <RxHamburgerMenu

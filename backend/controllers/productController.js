@@ -66,6 +66,7 @@ const listProducts = async (req, res) => {
   }
 };
 
+
 // finction for removing products
 const removeProducts = async (req, res) => {
   try {
