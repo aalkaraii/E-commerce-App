@@ -1,9 +1,16 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
-  mongoose.connection.on("connected", () => {
+  try {
+    await mongoose.connect(
+      "mongodb+srv://alkarai:alka123@cluster0.xqrooys.mongodb.net/e-commerce?appName=Cluster0"
+      // "mongodb+srv://alkarai:alka123@cluster0.xqrooys.mongodb.net/e-commerce"
+    );
+
     console.log("DB connected");
-  });
-  await mongoose.connect(`${process.env.MONGODB_URI}/e-commerce`);
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+    process.exit(1);
+  }
 };
 export default connectDB;

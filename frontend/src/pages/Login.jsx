@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login");
   const { setToken, token, navigate, backendUrl } = useContext(ShopContext);
+  console.log("backend url : ", backendUrl);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -61,9 +62,8 @@ const Login = () => {
         type="text"
         onChange={(e) => setName(e.target.value)}
         value={name}
-        className={`w-full transition-all px-3 py-2 border border-gray-800 ${
-          currentState === "Login" ? "hidden" : "flex"
-        }`}
+        className={`w-full transition-all px-3 py-2 border border-gray-800 ${currentState === "Login" ? "hidden" : "flex"
+          }`}
         placeholder="Name"
       />
       <input

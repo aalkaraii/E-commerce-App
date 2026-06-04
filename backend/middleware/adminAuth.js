@@ -6,10 +6,19 @@ const adminAuth = async (req, res, next) => {
       return res.json({ success: false, message: "not authorize" });
     }
     const token_decode = jwt.verify(token, process.env.JWT_SECRECT);
-    if (token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
-      return res.json({ success: false, message: "not authorize" });
+    
+    // Check old format (legacy concatenated string)
+    if (token_decode === process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
+      return next();
     }
-    next();
+    
+    // Check new format (object payload with role: "admin")
+    if (token_decode && token_decode.role === "admin") {
+      req.admin = token_decode; // attach token payload to request
+      return next();
+    }
+
+    return res.json({ success: false, message: "not authorize" });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: error.message });

@@ -6,6 +6,8 @@ import Add from "./pages/Add";
 import List from "../src/pages/List";
 import Orders from "../src/pages/Orders";
 import Login from "./components/login";
+import ChangePassword from "./pages/ChangePassword";
+import ResetPassword from "./components/ResetPassword";
 import { ToastContainer } from "react-toastify";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -22,7 +24,10 @@ const App = () => {
     <div className="bg-gray-100 min-h-screen">
       <ToastContainer />
       {token === "" ? (
-        <Login setToken={setToken} />
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Login setToken={setToken} />} />
+        </Routes>
       ) : (
         <>
           <Navbar setToken={setToken} />
@@ -36,6 +41,8 @@ const App = () => {
                 <Route path="/add" element={<Add token={token} />} />
                 <Route path="/list" element={<List token={token} />} />
                 <Route path="/orders" element={<Orders token={token} />} />
+                <Route path="/change-password" element={<ChangePassword token={token} />} />
+                <Route path="*" element={<Add token={token} />} />
               </Routes>
             </div>
           </div>
