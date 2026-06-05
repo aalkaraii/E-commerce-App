@@ -3,16 +3,20 @@ import { useSelector } from "react-redux";
 import { assets } from "../assets/frontend_assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import axios from "axios";
 
 const Collection = () => {
   const products = useSelector((state) => state.shop.products);
   const search = useSelector((state) => state.shop.search);
   const showSearch = useSelector((state) => state.shop.showSearch);
+  const backendUrl = useSelector((state) => state.shop.backendUrl);
+
   const [showFilters, setShowFilters] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
-  const [sortType, setSortType] = useState("relevent");
+  const [sortType, setSortType] = useState("relevant");
+
   const toggleCategory = (e) => {
     if (category.includes(e.target.value)) {
       setCategory((prev) => prev.filter((item) => item !== e.target.value));
@@ -28,48 +32,42 @@ const Collection = () => {
       setSubCategory((prev) => [...prev, e.target.value]);
     }
   };
-  const applyFilter = () => {
-    let productsCopy = products.slice();
-    if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
+
+  const fetchFilteredProducts = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (category.length > 0) {
+        params.append("category", category.join(","));
+      }
+      if (subCategory.length > 0) {
+        params.append("subCategory", subCategory.join(","));
+      }
+      if (sortType === "low-high" || sortType === "high-low") {
+        params.append("sort", sortType);
+      }
+
+      const response = await axios.get(
+        `${backendUrl}/api/product/list?${params.toString()}`
       );
+      if (response.data.success) {
+        let fetchedProducts = response.data.products;
+
+        if (showSearch && search) {
+          fetchedProducts = fetchedProducts.filter((item) =>
+            item.name.toLowerCase().includes(search.toLowerCase())
+          );
+        }
+
+        setFilterProducts(fetchedProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching filtered products:", error);
     }
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        category.includes(item.category)
-      );
-    }
-    setFilterProducts(productsCopy);
   };
 
-  const sortProducts = () => {
-    let fpCopy = filterProducts.slice();
-    switch (sortType) {
-      case "low-high":
-        setFilterProducts(fpCopy.sort((a, b) => a.price - b.price));
-        break;
-
-      case "high-low":
-        setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
-        break;
-
-      default:
-        applyFilter();
-        break;
-    }
-  };
   useEffect(() => {
-    setFilterProducts(products);
-  }, []);
-
-  useEffect(() => {
-    applyFilter();
-  }, [category, subCategory, search, showSearch, products]);
-
-  useEffect(() => {
-    sortProducts();
-  }, [sortType]);
+    fetchFilteredProducts();
+  }, [category, subCategory, sortType, search, showSearch, products]);
 
   return (
     <div className="flex flex-col sm:flex-row sm:justify-around gap-1 sm:gap-10 pt-10 border-t">
@@ -113,7 +111,7 @@ const Collection = () => {
               <input
                 type="checkbox"
                 className="w-3"
-                value={"Kids"}
+                value={"kids"}
                 onChange={toggleCategory}
               />
               Kids

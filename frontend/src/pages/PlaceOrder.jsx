@@ -4,10 +4,20 @@ import CartTotal from "../components/CartTotal";
 import { assets } from "../assets/frontend_assets/assets";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useSelector, useDispatch } from "react-redux";
+import { setCartItems } from "../store/shopSlice";
+import axios from "axios";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const products = useSelector((state) => state.shop.products);
+  const cartItems = useSelector((state) => state.shop.cartItems);
+  const delivery_fee = useSelector((state) => state.shop.delivery_fee);
+  const token = useSelector((state) => state.shop.token);
+  const backendUrl = useSelector((state) => state.shop.backendUrl);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -41,7 +51,7 @@ const PlaceOrder = () => {
     formData.country.trim() !== "" &&
     formData.phone.trim() !== "";
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
 
     // 1. Email validation
@@ -65,9 +75,53 @@ const PlaceOrder = () => {
       return;
     }
 
-    // If valid, proceed to orders page
-    toast.success("Order placed successfully!");
-    navigate("/orders");
+    try {
+      let orderItems = [];
+      for (const itemsId in cartItems) {
+        for (const size in cartItems[itemsId]) {
+          if (cartItems[itemsId][size] > 0) {
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === itemsId)
+            );
+            if (itemInfo) {
+              itemInfo.size = size;
+              itemInfo.quantity = cartItems[itemsId][size];
+              orderItems.push(itemInfo);
+            }
+          }
+        }
+      }
+
+      if (orderItems.length === 0) {
+        toast.error("Cart is empty");
+        return;
+      }
+
+      // Calculate total amount
+      let subTotal = 0;
+      orderItems.forEach((item) => {
+        subTotal += item.price * item.quantity;
+      });
+      const totalAmount = subTotal + delivery_fee;
+
+      // Call Place Order API
+      const response = await axios.post(
+        `${backendUrl}/api/order/place`,
+        { items: orderItems, amount: totalAmount, address: formData },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        dispatch(setCartItems({}));
+        toast.success(response.data.message);
+        navigate("/orders");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../App";
@@ -11,10 +11,33 @@ const Add = ({ token }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Men");
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
   const [subCategory, setSubCategory] = useState("TopWear");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(backendUrl + "/api/category/list");
+      if (response.data.success) {
+        setCategories(response.data.categories);
+        if (response.data.categories.length > 0) {
+          setCategoryId(response.data.categories[0]._id);
+        }
+      } else {
+        toast.error("Failed to load categories");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load categories");
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const onSubmitHandeller = async (e) => {
     e.preventDefault();
     console.log("Bestseller value:", bestseller);
@@ -26,7 +49,7 @@ const Add = ({ token }) => {
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
-      formData.append("category", category);
+      formData.append("category_id", categoryId);
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
@@ -44,7 +67,9 @@ const Add = ({ token }) => {
         setName("");
         setDescription("");
         setPrice("");
-        setCategory("Men");
+        if (categories.length > 0) {
+          setCategoryId(categories[0]._id);
+        }
         setSubCategory("TopWear");
         setBestseller(false);
         setSizes([]);
@@ -147,11 +172,14 @@ const Add = ({ token }) => {
         <div>
           <p className="mb-2">Product Category</p>
           <select
-            onChange={(e) => setCategory(e.target.value)}
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
             className=" w-full px-2 py-2">
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="kids">Kids</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.displayName}
+              </option>
+            ))}
           </select>
         </div>
         <div>
